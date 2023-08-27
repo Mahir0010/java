@@ -1,0 +1,70 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+public class BrickBreakerGame extends JPanel implements ActionListener {
+    private Timer timer;
+    private int ballX = 250, ballY = 250;
+    private int ballXSpeed = 2, ballYSpeed = 2;
+    private int paddleX = 200;
+    private boolean leftPressed = false, rightPressed = false;
+
+    public BrickBreakerGame() {
+        timer = new Timer(10, this);
+        timer.start();
+        addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                int key = e.getKeyCode();
+                if (key == KeyEvent.VK_LEFT) leftPressed = true;
+                if (key == KeyEvent.VK_RIGHT) rightPressed = true;
+            }
+            public void keyReleased(KeyEvent e) {
+                int key = e.getKeyCode();
+                if (key == KeyEvent.VK_LEFT) leftPressed = false;
+                if (key == KeyEvent.VK_RIGHT) rightPressed = false;
+            }
+        });
+        setFocusable(true);
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        ballX += ballXSpeed;
+        ballY += ballYSpeed;
+
+        if (ballX < 0 || ballX > 590) ballXSpeed = -ballXSpeed;
+        if (ballY < 0) ballYSpeed = -ballYSpeed;
+
+        if (ballY > 560 && ballX > paddleX && ballX < paddleX + 100) ballYSpeed = -ballYSpeed;
+
+        if (ballY > 600) {
+            // Game over logic
+            timer.stop();
+        }
+
+        if (leftPressed && paddleX > 0) paddleX -= 2;
+        if (rightPressed && paddleX < 500) paddleX += 2;
+
+        repaint();
+    }
+
+    public void paint(Graphics g) {
+        super.paint(g);
+        g.setColor(Color.BLACK);
+        g.fillRect(0, 0, 600, 600);
+
+        g.setColor(Color.GREEN);
+        g.fillRect(paddleX, 570, 100, 8);
+
+        g.setColor(Color.RED);
+        g.fillOval(ballX, ballY, 20, 20);
+    }
+
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("Brick Breaker");
+        BrickBreakerGame game = new BrickBreakerGame();
+        frame.add(game);
+        frame.setSize(600, 600);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+}
